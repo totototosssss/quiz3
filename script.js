@@ -1,10 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // DOM要素の取得 (HTMLのIDと完全に一致しているか確認してください)
     const messageTextContentElement = document.getElementById('message-text-content');
     const choicesAreaElement = document.getElementById('choices-area');
     const feedbackTextElement = document.getElementById('feedback-text');
     const nextQuestionBtn = document.getElementById('next-question-btn');
     const quizAreaElement = document.getElementById('quiz-area');
-    const resultAreaElement = document.getElementById('result-area'); // ★★★ ID名をHTMLに合わせて修正 ★★★
+    const resultAreaElement = document.getElementById('result-area'); // ★HTMLのid="result-area"と一致
     const restartBtn = document.getElementById('restart-btn');
     const progressBarElement = document.getElementById('progress-bar');
     const progressTextElement = document.getElementById('progress-text');
@@ -52,13 +53,15 @@ document.addEventListener('DOMContentLoaded', () => {
             startGame();
         } catch (error) {
             console.error("クイズデータの読み込みまたは初期化に失敗:", error);
-            // displayErrorが呼ばれる前にresultAreaElementがnullだとエラーになるので、
-            // displayError内でのresultAreaElement操作は、それがnullでないことを確認してから行う
-            if (quizAreaElement) { // quizAreaElementも同様に確認
-                 quizAreaElement.innerHTML = `<p class="error-message">クイズの読み込みに失敗しました: ${error.message}. JSONファイル(${QUIZ_DATA_FILE})を確認してください。</p>`;
+            let errorMessage = `クイズの読み込みに失敗しました: ${error.message}. JSONファイル(${QUIZ_DATA_FILE})を確認してください。`;
+            // displayError関数自体がエラーを起こさないように、ここでも要素の存在を確認
+            if (quizAreaElement) {
+                 quizAreaElement.innerHTML = `<p class="error-message">${errorMessage}</p>`;
                  quizAreaElement.style.display = 'block';
+            } else {
+                alert(errorMessage); // quizAreaElement がない場合のフォールバック
             }
-            if (resultAreaElement) resultAreaElement.style.display = 'none'; // エラー時に隠す
+            if (resultAreaElement) resultAreaElement.style.display = 'none';
             const header = document.querySelector('.quiz-header');
             if(header) header.style.display = 'none';
         }
@@ -73,11 +76,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function displayError(message) { 
-        if (quizAreaElement) {
+        if (quizAreaElement) { // ★ quizAreaElement の null チェック
             quizAreaElement.innerHTML = `<p class="error-message">${message}</p>`;
             quizAreaElement.style.display = 'block';
         }
-        if (resultAreaElement) { // ★ nullチェックを追加
+        if (resultAreaElement) { // ★ resultAreaElement の null チェック
             resultAreaElement.style.display = 'none';
         }
         const header = document.querySelector('.quiz-header');
@@ -90,9 +93,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if(currentScoreValueElement) currentScoreValueElement.textContent = '0';
         if(currentScoreDisplayElement) currentScoreDisplayElement.classList.remove('score-updated');
         
-        if (resultAreaElement) { // ★ nullチェックを追加
-            resultAreaElement.style.display = 'none';
-            const resultCard = document.querySelector('.result-card'); // resultCardもresultAreaElementの内側にあるはず
+        if (resultAreaElement) { // ★ resultAreaElement の null チェック
+            resultAreaElement.style.display = 'none'; // この行がエラー箇所(81)とされていました
+            const resultCard = document.querySelector('.result-card'); 
             if(resultCard) { 
                 resultCard.style.opacity = '0';
                 resultCard.style.transform = 'translateY(30px) scale(0.95)';
@@ -102,16 +105,19 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         
-        if (quizAreaElement) quizAreaElement.style.display = 'block'; // ★ nullチェックを追加
+        if (quizAreaElement) quizAreaElement.style.display = 'block'; // ★ quizAreaElement の null チェック
         if(attributionQuestionArea) attributionQuestionArea.style.display = 'block'; 
-        choicesAreaElement.className = 'choices-container binary-choices'; 
+        if (choicesAreaElement) choicesAreaElement.className = 'choices-container binary-choices'; 
 
-        nextQuestionBtn.style.display = 'none';
-        feedbackTextElement.textContent = '';
-        feedbackTextElement.className = 'feedback-text'; 
+        if (nextQuestionBtn) nextQuestionBtn.style.display = 'none';
+        if (feedbackTextElement) {
+            feedbackTextElement.textContent = '';
+            feedbackTextElement.className = 'feedback-text'; 
+        }
         
         if (currentQuizSet.length === 0) {
-            displayError("出題できるクイズがありません。"); // このdisplayError呼び出し時にはresultAreaElementが解決済みであるべき
+            // startGameが呼ばれる前にcurrentQuizSetが空ならinitializeQuizでエラー表示されるはずだが念のため
+            displayError("出題できるクイズがありません。"); 
             return;
         }
         updateProgress();
@@ -119,49 +125,54 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function displayQuestion() {
-        feedbackTextElement.className = 'feedback-text';
+        if (feedbackTextElement) feedbackTextElement.className = 'feedback-text'; // Ensure feedback is reset
+
         if (currentQuestionIndex < currentQuizSet.length) {
             const q = currentQuizSet[currentQuestionIndex];
             
-            if (q.prev_message_text && prevMessageContainer) {
-                prevSpeakerNameElement.textContent = q.prev_speaker_display || "";
-                prevMessageTextElement.innerHTML = q.prev_message_text.replace(/\n/g, '<br>');
-                prevMessageContainer.style.display = 'block';
-            } else if (prevMessageContainer) {
-                prevMessageContainer.style.display = 'none';
-                prevSpeakerNameElement.textContent = "";
-                prevMessageTextElement.innerHTML = "";
+            if (prevMessageContainer && prevSpeakerNameElement && prevMessageTextElement) {
+                if (q.prev_message_text) {
+                    prevSpeakerNameElement.textContent = q.prev_speaker_display || "";
+                    prevMessageTextElement.innerHTML = q.prev_message_text.replace(/\n/g, '<br>');
+                    prevMessageContainer.style.display = 'block';
+                } else {
+                    prevMessageContainer.style.display = 'none';
+                    prevSpeakerNameElement.textContent = "";
+                    prevMessageTextElement.innerHTML = "";
+                }
             }
 
-            messageTextContentElement.innerHTML = q.main_quote_text.replace(/\n/g, '<br>');
+            if (messageTextContentElement) messageTextContentElement.innerHTML = q.main_quote_text.replace(/\n/g, '<br>');
             
-            if (q.next_message_text && nextMessageContainer) {
-                nextSpeakerNameElement.textContent = q.next_speaker_display || "";
-                nextMessageTextElement.innerHTML = q.next_message_text.replace(/\n/g, '<br>');
-                nextMessageContainer.style.display = 'block';
-            } else if (nextMessageContainer) {
-                nextMessageContainer.style.display = 'none';
-                nextSpeakerNameElement.textContent = "";
-                nextMessageTextElement.innerHTML = "";
+            if (nextMessageContainer && nextSpeakerNameElement && nextMessageTextElement) {
+                if (q.next_message_text) {
+                    nextSpeakerNameElement.textContent = q.next_speaker_display || "";
+                    nextMessageTextElement.innerHTML = q.next_message_text.replace(/\n/g, '<br>');
+                    nextMessageContainer.style.display = 'block';
+                } else {
+                    nextMessageContainer.style.display = 'none';
+                    nextSpeakerNameElement.textContent = "";
+                    nextMessageTextElement.innerHTML = "";
+                }
             }
             
             if(attributedSpeakerNameElement) attributedSpeakerNameElement.textContent = q.attributed_speaker_display;
             if(attributionQuestionArea) attributionQuestionArea.style.display = 'block';
 
-            choicesAreaElement.innerHTML = ''; 
+            if (choicesAreaElement) choicesAreaElement.innerHTML = ''; 
             const yesButton = document.createElement('button');
             yesButton.innerHTML = `<span>はい、この人の発言！</span>`;
             yesButton.dataset.answer = "yes";
             yesButton.addEventListener('click', () => handleAnswer("yes"));
-            choicesAreaElement.appendChild(yesButton);
+            if (choicesAreaElement) choicesAreaElement.appendChild(yesButton);
 
             const noButton = document.createElement('button');
             noButton.innerHTML = `<span>いいえ、違う人の発言！</span>`;
             noButton.dataset.answer = "no";
             noButton.addEventListener('click', () => handleAnswer("no"));
-            choicesAreaElement.appendChild(noButton);
+            if (choicesAreaElement) choicesAreaElement.appendChild(noButton);
             
-            nextQuestionBtn.style.display = 'none';
+            if (nextQuestionBtn) nextQuestionBtn.style.display = 'none';
         } else {
             showResults();
         }
@@ -173,9 +184,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const attributedSpeaker = currentQuestion.attributed_speaker_display;
         const actualSpeaker = currentQuestion.main_quote_actual_speaker_display;
 
-        const buttons = choicesAreaElement.getElementsByTagName('button');
-        for (let btn of buttons) {
-            btn.disabled = true;
+        if (choicesAreaElement) {
+            const buttons = choicesAreaElement.getElementsByTagName('button');
+            for (let btn of buttons) {
+                btn.disabled = true;
+            }
         }
         
         let answeredCorrectly = false;
@@ -183,20 +196,20 @@ document.addEventListener('DOMContentLoaded', () => {
         if (userChoice === "yes") {
             if (isCorrectAttribution) {
                 answeredCorrectly = true;
-                feedbackTextElement.textContent = `正解！これは本当に ${attributedSpeaker} さんの発言でした！🎉`;
+                if (feedbackTextElement) feedbackTextElement.textContent = `正解！これは本当に ${attributedSpeaker} さんの発言でした！🎉`;
             } else {
-                feedbackTextElement.textContent = `残念…！これは ${attributedSpeaker} さんの発言ではありませんでした。本当は ${actualSpeaker} さんのセリフです。`;
+                if (feedbackTextElement) feedbackTextElement.textContent = `残念…！これは ${attributedSpeaker} さんの発言ではありませんでした。本当は ${actualSpeaker} さんのセリフです。`;
             }
         } else if (userChoice === "no") {
             if (!isCorrectAttribution) {
                 answeredCorrectly = true;
-                feedbackTextElement.textContent = `お見事！その通り、 ${attributedSpeaker} さんの発言ではありませんでした！（本当は ${actualSpeaker} さんです）👍`;
+                if (feedbackTextElement) feedbackTextElement.textContent = `お見事！その通り、 ${attributedSpeaker} さんの発言ではありませんでした！（本当は ${actualSpeaker} さんです）👍`;
             } else {
-                feedbackTextElement.textContent = `ありゃ、これは本当に ${attributedSpeaker} さんの発言だったんですよ。`;
+                if (feedbackTextElement) feedbackTextElement.textContent = `ありゃ、これは本当に ${attributedSpeaker} さんの発言だったんですよ。`;
             }
         }
         
-        feedbackTextElement.className = 'feedback-text visible'; 
+        if (feedbackTextElement) feedbackTextElement.className = 'feedback-text visible'; 
         if (answeredCorrectly) {
             score++;
             if(currentScoreValueElement) currentScoreValueElement.textContent = score;
@@ -204,38 +217,40 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentScoreDisplayElement.classList.add('score-updated');
                 setTimeout(() => currentScoreDisplayElement.classList.remove('score-updated'), 300);
             }
-            feedbackTextElement.classList.add('correct');
-            Array.from(buttons).find(btn => btn.dataset.answer === userChoice)?.classList.add('correct');
+            if (feedbackTextElement) feedbackTextElement.classList.add('correct');
+            if (choicesAreaElement) Array.from(choicesAreaElement.getElementsByTagName('button')).find(btn => btn.dataset.answer === userChoice)?.classList.add('correct');
+            
             if (typeof confetti === 'function' && score < TARGET_NUM_QUESTIONS) {
                 confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 }, zIndex: 10000, scalar: 1.15, angle: randomRange(75,105) });
             }
         } else {
-            feedbackTextElement.classList.add('wrong');
-            Array.from(buttons).find(btn => btn.dataset.answer === userChoice)?.classList.add('wrong');
-            feedbackTextElement.classList.add('feedback-text-shake');
-            setTimeout(() => {
-                feedbackTextElement.classList.remove('feedback-text-shake');
-            }, 400); 
+            if (feedbackTextElement) {
+                feedbackTextElement.classList.add('wrong');
+                feedbackTextElement.classList.add('feedback-text-shake');
+                setTimeout(() => {
+                    feedbackTextElement.classList.remove('feedback-text-shake');
+                }, 400); 
+            }
+            if (choicesAreaElement) Array.from(choicesAreaElement.getElementsByTagName('button')).find(btn => btn.dataset.answer === userChoice)?.classList.add('wrong');
         }
-        nextQuestionBtn.style.display = 'inline-flex';
+        if (nextQuestionBtn) nextQuestionBtn.style.display = 'inline-flex';
     }
 
     function updateProgress() {
         const totalQuestionsInSet = currentQuizSet.length;
         if (totalQuestionsInSet > 0) {
-            const progressPercentage = ((currentQuestionIndex) / totalQuestionsInSet) * 100;
-            progressBarElement.style.width = `${progressPercentage}%`;
-            progressTextElement.textContent = `問題 ${currentQuestionIndex + 1} / ${totalQuestionsInSet}`;
+            if (progressBarElement) progressBarElement.style.width = `${((currentQuestionIndex) / totalQuestionsInSet) * 100}%`;
+            if (progressTextElement) progressTextElement.textContent = `問題 ${currentQuestionIndex + 1} / ${totalQuestionsInSet}`;
         } else {
-            progressBarElement.style.width = `0%`;
-            progressTextElement.textContent = `問題 - / -`;
+            if (progressBarElement) progressBarElement.style.width = `0%`;
+            if (progressTextElement) progressTextElement.textContent = `問題 - / -`;
         }
     }
 
     function showResults() {
-        if (quizAreaElement) quizAreaElement.style.display = 'none'; // ★ nullチェック
+        if (quizAreaElement) quizAreaElement.style.display = 'none';
         if(attributionQuestionArea) attributionQuestionArea.style.display = 'none';
-        if (resultAreaElement) resultAreaElement.style.display = 'block';  // ★ nullチェック
+        if (resultAreaElement) resultAreaElement.style.display = 'block'; 
         
         const resultCard = document.querySelector('.result-card');
         if(resultCard) { 
@@ -247,7 +262,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         const totalAnswered = currentQuizSet.length;
-        totalQuestionsOnResultElement.textContent = totalAnswered;
+        if (totalQuestionsOnResultElement) totalQuestionsOnResultElement.textContent = totalAnswered;
         let rank = '', rankTitle = '', message = '', iconClass = ''; 
         const correctAnswers = score;
 
@@ -321,14 +336,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 break;
         }
         
-        resultIconContainer.className = `result-icon-container rank-${rank}`; 
-        resultIconContainer.innerHTML = `<i class="${iconClass}"></i>`;
-        resultRankTitleElement.textContent = rankTitle;
-        resultRankTitleElement.className = `result-rank-title rank-${rank}`; 
-        resultMessageElement.textContent = message;
-        animateValue(finalScoreValueElement, 0, score, 700 + score * 60);
-        progressBarElement.style.width = '100%';
-        progressTextElement.textContent = `全 ${totalAnswered} 問完了！`;
+        if (resultIconContainer) resultIconContainer.className = `result-icon-container rank-${rank}`; 
+        if (resultIconContainer) resultIconContainer.innerHTML = `<i class="${iconClass}"></i>`;
+        if (resultRankTitleElement) resultRankTitleElement.textContent = rankTitle;
+        if (resultRankTitleElement) resultRankTitleElement.className = `result-rank-title rank-${rank}`; 
+        if (resultMessageElement) resultMessageElement.textContent = message;
+        if (finalScoreValueElement) animateValue(finalScoreValueElement, 0, score, 700 + score * 60);
+        if (progressBarElement) progressBarElement.style.width = '100%';
+        if (progressTextElement) progressTextElement.textContent = `全 ${totalAnswered} 問完了！`;
     }
     
     function animateValue(element, start, end, duration) {
@@ -351,21 +366,28 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     function randomRange(min, max) { return Math.random() * (max - min) + min; }
     
-    document.getElementById('current-year').textContent = new Date().getFullYear();
-    nextQuestionBtn.addEventListener('click', () => {
-        currentQuestionIndex++;
-        if (currentQuestionIndex < currentQuizSet.length) {
-            displayQuestion();
-            updateProgress(); 
-        } else {
-            progressBarElement.style.width = '100%'; 
-            progressTextElement.textContent = `結果を計算中...`; 
-            showResults();
-        }
-    });
-    restartBtn.addEventListener('click', () => {
-        prepareNewQuizSet(); 
-        startGame();
-    });
+    const currentYearElement = document.getElementById('current-year');
+    if (currentYearElement) currentYearElement.textContent = new Date().getFullYear();
+
+    if (nextQuestionBtn) {
+        nextQuestionBtn.addEventListener('click', () => {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < currentQuizSet.length) {
+                displayQuestion();
+                updateProgress(); 
+            } else {
+                if(progressBarElement) progressBarElement.style.width = '100%'; 
+                if(progressTextElement) progressTextElement.textContent = `結果を計算中...`; 
+                showResults();
+            }
+        });
+    }
+    if (restartBtn) {
+        restartBtn.addEventListener('click', () => {
+            prepareNewQuizSet(); 
+            startGame();
+        });
+    }
+    
     initializeQuiz();
 });
