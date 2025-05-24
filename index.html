@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aetheris Quiz ✨ 文脈推理</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <title>Aetheris Quiz ✨ 文脈推理・極</title> <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="page-background"></div> <div class="app-wrapper">
+    <div class="page-background"></div>
+    <div class="app-wrapper">
         <div class="app-container">
             <header class="quiz-header">
                 <h1 class="game-title">
-                    文脈推理
-                    <span class="game-title-edition">Aetheris</span>
+                    文脈推理！
+                    <span class="game-title-edition">このセリフ誰のだ？<span class="edition-accent">極</span></span>
                 </h1>
                 <div class="header-info-bar">
                     <div class="progress-info">
@@ -39,7 +39,8 @@
                     </div>
 
                     <div id="main-quote-container" class="message-bubble main-quote-bubble">
-                        <i class="fas fa-feather-alt message-quote-icon"></i> <span id="main-quote-text-content"></span>
+                        <i class="fas fa-feather-alt message-quote-icon"></i>
+                        <span id="main-quote-text-content"></span>
                     </div>
 
                     <div class="context-message-wrapper next-context" id="next-message-container" style="display:none;">
@@ -64,11 +65,11 @@
 
             <section id="result-area" class="result-display-area" style="display:none;">
                 <div class="result-card">
-                    <h2 class="result-card-title">クイズリザルト</h2>
+                    <h2 class="result-card-title">最終結果</h2>
                     <div id="result-icon-container" class="result-icon-container"></div>
                     <p id="result-rank-title" class="result-rank-title"></p>
                     <div class="final-score-display">
-                        <span class="final-score-label">FINAL SCORE</span>
+                        <span class="final-score-label">SCORE</span>
                         <span id="final-score-value" class="final-score-value">0</span>
                         <span class="total-questions-label">/ <span id="total-questions-on-result">10</span></span>
                     </div>
@@ -80,7 +81,7 @@
             </section>
 
             <footer class="app-footer">
-                <p>&copy; <span id="current-year"></span> Aetheris Quiz by Gemini. </p>
+                <p>&copy; <span id="current-year"></span> 文脈推理クイズ・極. All rights reserved.</p>
             </footer>
         </div>
     </div>
