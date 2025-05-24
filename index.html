@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>文脈推理(一旦仮案)</title>
+    <title>VectorFlow Quiz 🧠 文脈推理</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -11,13 +11,13 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="page-background"></div>
+    <div class="page-background-vflow"></div> 
     <div class="app-wrapper">
         <div class="app-container">
             <header class="quiz-header">
                 <h1 class="game-title">
-                    文脈推理！
-                    <span class="game-title-edition">このセリフ誰のだ？<span class="edition-accent">(一旦仮案)</span></span>
+                    文脈推理
+                    <span class="game-title-edition">VectorFlow</span>
                 </h1>
                 <div class="header-info-bar">
                     <div class="progress-info">
@@ -27,7 +27,7 @@
                         </div>
                     </div>
                     <div class="current-score-display">
-                        <i class="fas fa-star score-icon"></i>スコア: <span id="current-score-value">0</span>
+                        <i class="fas fa-brain score-icon"></i>スコア: <span id="current-score-value">0</span>
                     </div>
                 </div>
             </header>
@@ -40,7 +40,7 @@
                     </div>
 
                     <div id="main-quote-container" class="message-bubble main-quote-bubble">
-                        <i class="fas fa-feather-alt message-quote-icon"></i>
+                        <i class="fas fa-quote-right message-quote-icon"></i>
                         <span id="main-quote-text-content"></span>
                     </div>
 
@@ -66,23 +66,23 @@
 
             <section id="result-area" class="result-display-area" style="display:none;">
                 <div class="result-card">
-                    <h2 class="result-card-title">最終結果</h2>
+                    <h2 class="result-card-title">最終分析レポート</h2>
                     <div id="result-icon-container" class="result-icon-container"></div>
                     <p id="result-rank-title" class="result-rank-title"></p>
                     <div class="final-score-display">
-                        <span class="final-score-label">SCORE</span>
+                        <span class="final-score-label">ACCURACY</span>
                         <span id="final-score-value" class="final-score-value">0</span>
                         <span class="total-questions-label">/ <span id="total-questions-on-result">10</span></span>
                     </div>
                     <p id="result-message" class="result-message"></p>
                     <button id="restart-btn" class="action-button restart-button">
-                        <i class="fas fa-sync-alt icon-before"></i> もう一度挑戦！
+                        <i class="fas fa-sync-alt icon-before"></i> 再チャレンジ
                     </button>
                 </div>
             </section>
 
             <footer class="app-footer">
-                <p>&copy; <span id="current-year"></span>　Chat Room 子子と子   (3.27~5.24)</p>
+                <p>&copy; <span id="current-year"></span> VectorFlow Quiz Engine. </p>
             </footer>
         </div>
     </div>
