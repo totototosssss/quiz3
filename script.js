@@ -176,7 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (userChoice === "no") {
             if (!isCorrectAttribution) {
                 answeredCorrectly = true;
-                feedbackTextElement.textContent = `お見事！その通り、 ${attributedSpeaker} さんの発言ではありませんでした！（正解は ${actualSpeaker} さんです）👍`;
+                feedbackTextElement.textContent = `お見事！その通り、 ${attributedSpeaker} さんの発言ではありませんでした！（本当は ${actualSpeaker} さんです）👍`;
             } else {
                 feedbackTextElement.textContent = `ありゃ、これは本当に ${attributedSpeaker} さんの発言だったんですよ。`;
             }
@@ -192,8 +192,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             feedbackTextElement.classList.add('correct');
             Array.from(buttons).find(btn => btn.dataset.answer === userChoice)?.classList.add('correct');
-            if (typeof confetti === 'function') {
-                confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 }, zIndex: 10000, scalar: 1.15, angle: randomRange(75,105) });
+            if (typeof confetti === 'function' && score < TARGET_NUM_QUESTIONS) { // 通常の正解時
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, zIndex: 10000, scalar: 1.1, angle: randomRange(80,100) });
             }
         } else {
             feedbackTextElement.classList.add('wrong');
@@ -218,7 +218,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- 結果表示 (称号・メッセージ大幅更新) ---
     function showResults() {
         quizAreaElement.style.display = 'none';
         if(attributionQuestionArea) attributionQuestionArea.style.display = 'none';
@@ -237,71 +236,81 @@ document.addEventListener('DOMContentLoaded', () => {
         let rank = '', rankTitle = '', message = '', iconClass = ''; 
         const correctAnswers = score;
 
+        // ★新しいランクとメッセージ定義
         switch (correctAnswers) {
-            case 10: // 100%
+            case 10:
                 rank = 'godlike'; rankTitle = "中毒お疲れ様です🤡";
-                message = "全問正解…参りました。あなたはこのトーク履歴の『神』ですね。履歴書に書けますよ、たぶん。";
-                iconClass = 'fas fa-crown'; 
-                 if (typeof confetti === 'function') { 
-                    setTimeout(() => { 
-                         const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 10000 };
-                         function shoot() {
-                            confetti({ ...defaults, particleCount: 80, scalar: 1.2, shapes: ['star'] });
-                            confetti({ ...defaults, particleCount: 30, scalar: 0.75, shapes: ['circle'] });
-                         }
-                         setTimeout(shoot, 0); setTimeout(shoot, 100); setTimeout(shoot, 200); setTimeout(shoot, 300); setTimeout(shoot, 400);
-                    }, 600);
+                message = "全問パーフェクト！…あなた、このトーク履歴がないと生きていけない体になってませんか？日常生活、ちゃんと送れてます？マジで心配です（棒読み）。";
+                iconClass = 'fas fa-skull-crossbones';
+                if (typeof confetti === 'function') {
+                    const end = Date.now() + (3.5 * 1000); // 3.5秒間継続
+                    const colors = ['#1f2937', '#5e5af9', '#f59e0b', '#ef4444', '#f3e5f5']; // テーマカラーに合わせて調整
+
+                    (function frame() {
+                        confetti({
+                            particleCount: 5, angle: 60, spread: 65, origin: { x: 0, y: 0.65 },
+                            colors: colors, scalar: Math.random() * 0.6 + 0.8, drift: Math.random() * 0.6 - 0.3
+                        });
+                        confetti({
+                            particleCount: 5, angle: 120, spread: 65, origin: { x: 1, y: 0.65 },
+                            colors: colors, scalar: Math.random() * 0.6 + 0.8, drift: Math.random() * -0.6 + 0.3
+                        });
+                        if (Date.now() < end) { requestAnimationFrame(frame); }
+                    }());
+                    setTimeout(() => { // 中央からの大きなバースト
+                        confetti({ particleCount: 180, spread: 120, origin: { y: 0.55 }, colors: colors, scalar: 1.3, zIndex: 10001, ticks: 300 });
+                    }, 400);
                 }
                 break;
-            case 9: // 90%
-                rank = 'ss'; rankTitle = "神眼の所有者";
-                message = "あと一歩で『神』…！その慧眼、常人には理解不能な領域です。恐れ入ります！";
-                iconClass = 'fas fa-eye'; 
+            case 9:
+                rank = 'ss'; rankTitle = "ほぼ中毒者 (あと一息)";
+                message = "おしい！あと1問でトーク履歴と魂が融合するところでしたね。その集中力、もう少しだけ実生活にも…？";
+                iconClass = 'fas fa-brain';
                 break;
-            case 8: // 80%
-                rank = 's'; rankTitle = "トーク賢者";
-                message = "驚異的！会話の深層心理までお見通しとは…！畏敬の念しかありません！";
-                iconClass = 'fas fa-hat-wizard';
+            case 8:
+                rank = 's'; rankTitle = "トーク履歴の住人";
+                message = "かなり正確じゃないですか。もしかして、この会話、昨日も夢で見ました…？デジャヴュってやつですか？";
+                iconClass = 'fas fa-door-open';
                 break;
-            case 7: // 70%
-                rank = 'a_plus'; rankTitle = "超読心術師";
-                message = "達人レベル！相手の思考が手に取るように分かるのですね！素晴らしい！";
-                iconClass = 'fas fa-award';
+            case 7:
+                rank = 'a_plus'; rankTitle = "なかなかの記憶力（暇人疑惑）";
+                message = "7割正解とは、なかなかやりますね。…ところで、最近何か他に楽しいこと、見つけました…？";
+                iconClass = 'fas fa-hourglass-half';
                 break;
-            case 6: // 60%
-                rank = 'a'; rankTitle = "名探偵の風格";
-                message = "なかなかの推理力！重要な手がかりを見逃しませんね。次こそパーフェクト！";
-                iconClass = 'fas fa-magnifying-glass-plus';
+            case 6:
+                rank = 'a'; rankTitle = "そこそこ当たる勘";
+                message = "半分以上はクリア！第六感ですか？それとも…このクイズ、何周目です…？";
+                iconClass = 'fas fa-wand-magic-sparkles';
                 break;
-            case 5: // 50%
-                rank = 'b_plus'; rankTitle = "聞き耳上手な隣人";
-                message = "ちょうど半分！会話の流れは掴めていますね！…もしかして、普段から聞き耳を…？なんて。";
-                iconClass = 'fas fa-ear-listen';
+            case 5:
+                rank = 'b_plus'; rankTitle = "五分五分の博徒";
+                message = "ちょうど半分！コイントスでも同じくらいの確率が出そうですね！次はそのコイン、誰にも見せずに握りしめてみませんか？";
+                iconClass = 'fas fa-coins';
                 break;
-            case 4: // 40%
-                rank = 'b'; rankTitle = "時々、宇宙と交信中？";
-                message = "惜しいような、そうでもないような…？大丈夫、たまには不思議な回答もスパイスです！…ということにしておきましょう。";
-                iconClass = 'fas fa-satellite-dish';
+            case 4:
+                rank = 'b'; rankTitle = "あれ？どこかで見たような…";
+                message = "うーん、デジャヴュかと思いきや、だいたい外れてますね。夢の続きでも見てました？それとも現実逃避？";
+                iconClass = 'fas fa-cloud-moon'; // 少し幻想的な感じに
                 break;
-            case 3: // 30%
-                rank = 'c_plus'; rankTitle = "迷える脚本家";
-                message = "その解釈は斬新すぎます！もはや創作の域では…？もう少しだけ、現実と向き合ってみませんか？";
-                iconClass = 'fas fa-theater-masks'; // or fas fa-scroll
+            case 3:
+                rank = 'c_plus'; rankTitle = "もしかして：乱視";
+                message = "3割ですか…。大丈夫、画面のせいかもしれませんよ？それか…心のピントが合ってないとか？ポエム？";
+                iconClass = 'fas fa-glasses';
                 break;
-            case 2: // 20%
-                rank = 'c'; rankTitle = "異文化コミュニケーター(自称)";
-                message = "…えっと、どこの星の会話ルールでしたっけ？このトークルームでは、もうちょっと…ね？でも、その個性は大事に！";
-                iconClass = 'fas fa-user-astronaut';
+            case 2:
+                rank = 'c'; rankTitle = "ほぼ全問不正解の匠";
+                message = "ここまで外せるのは、もはや一種の才能かもしれませんね！…その才能、他で活かせる場所を探しましょう！ポジティブに！";
+                iconClass = 'fas fa-paint-roller';
                 break;
-            case 1: // 10%
-                rank = 'd_plus'; rankTitle = "一点突破の奇跡";
-                message = "逆にすごい！一点集中型の才能が開花した瞬間かもしれません！…他はご愛嬌ということで！";
-                iconClass = 'fas fa-bullseye'; // or fas fa-dice-one
+            case 1:
+                rank = 'd_plus'; rankTitle = "奇跡の１問正解";
+                message = "すごい！１問だけ当たりましたね！宝くじも買ってみては？…いや、その運はここで使い果たした可能性が濃厚です。";
+                iconClass = 'fas fa-dice-one';
                 break;
-            case 0: // 0%
-            default: 
-                rank = 'd'; rankTitle = "伝説のノーコンタクト";
-                message = "全問不正解！おめでとうございます（？）。あなたは誰とも交わらない孤高の存在…！ある意味、選ばれし者。";
+            case 0:
+            default:
+                rank = 'd'; rankTitle = "伝説のノーヒットノーラン";
+                message = "全問不正解！おめでとうございます！あなたは『空気を読まない』のではなく『空気が読めない』という稀有な才能の持ち主かもしれません！いや、本当にすごい（色んな意味で）。";
                 iconClass = 'fas fa-ghost';
                 break;
         }
