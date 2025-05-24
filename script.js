@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const messageTextContentElement = document.getElementById('main-quote-text-content'); // ★中心の発言用
+    const messageTextContentElement = document.getElementById('message-text-content');
     const choicesAreaElement = document.getElementById('choices-area');
     const feedbackTextElement = document.getElementById('feedback-text');
     const nextQuestionBtn = document.getElementById('next-question-btn');
@@ -14,15 +14,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const attributedSpeakerNameElement = document.getElementById('attributed-speaker-name');
     const attributionQuestionArea = document.getElementById('attribution-question');
 
-    // ★文脈表示用要素
     const prevMessageContainer = document.getElementById('prev-message-container');
     const prevSpeakerNameElement = document.getElementById('prev-speaker-name');
     const prevMessageTextElement = document.getElementById('prev-message-text');
     const nextMessageContainer = document.getElementById('next-message-container');
     const nextSpeakerNameElement = document.getElementById('next-speaker-name');
     const nextMessageTextElement = document.getElementById('next-message-text');
-    // const mainQuoteActualSpeakerHiddenElement = document.getElementById('quote-actual-speaker-name-hidden'); // Not used yet
-
 
     const resultIconContainer = document.getElementById('result-icon-container');
     const resultRankTitleElement = document.getElementById('result-rank-title');
@@ -40,7 +37,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const QUIZ_DATA_FILE = "misattributed_context_quiz_data.json"; 
 
     async function initializeQuiz() {
-        if(appContainer) { /* CSS handles entrance */ }
+        // App container entrance animation is primarily handled by CSS
+        // Adding a class via JS can ensure it triggers after JS is ready if needed
+        if(appContainer) {
+             setTimeout(() => appContainer.classList.add('loaded'), 50); // Small delay for CSS to potentially catch up
+        }
+
         try {
             const response = await fetch(QUIZ_DATA_FILE);
             if (!response.ok) throw new Error(`HTTP error! Quiz data not found (${QUIZ_DATA_FILE}). Status: ${response.status}`);
@@ -81,7 +83,15 @@ document.addEventListener('DOMContentLoaded', () => {
         
         resultAreaElement.style.display = 'none';
         const resultCard = document.querySelector('.result-card');
-        if(resultCard) { resultCard.style.animation = 'none'; resultCard.offsetHeight; resultCard.style.animation = ''; }
+        if(resultCard) { 
+            // Reset animation classes if they are added dynamically
+            resultCard.style.opacity = '0';
+            resultCard.style.transform = 'translateY(30px) scale(0.95)';
+            // Ensure CSS animation is ready to play again
+            resultCard.style.animation = 'none'; 
+            resultCard.offsetHeight; // Trigger reflow to reset animation
+            resultCard.style.animation = ''; 
+        }
         
         quizAreaElement.style.display = 'block';
         if(attributionQuestionArea) attributionQuestionArea.style.display = 'block'; 
@@ -100,28 +110,33 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function displayQuestion() {
+        // Reset animations for elements that might re-appear
+        feedbackTextElement.className = 'feedback-text';
+        // Potentially reset message bubble animations if added
+
         if (currentQuestionIndex < currentQuizSet.length) {
             const q = currentQuizSet[currentQuestionIndex];
             
-            // ★文脈メッセージの表示制御
             if (q.prev_message_text && prevMessageContainer) {
-                prevSpeakerNameElement.textContent = q.prev_speaker_display || "不明";
+                prevSpeakerNameElement.textContent = q.prev_speaker_display || "";
                 prevMessageTextElement.innerHTML = q.prev_message_text.replace(/\n/g, '<br>');
                 prevMessageContainer.style.display = 'block';
             } else if (prevMessageContainer) {
                 prevMessageContainer.style.display = 'none';
+                prevSpeakerNameElement.textContent = "";
+                prevMessageTextElement.innerHTML = "";
             }
 
             messageTextContentElement.innerHTML = q.main_quote_text.replace(/\n/g, '<br>');
-            // if(mainQuoteActualSpeakerHiddenElement) mainQuoteActualSpeakerHiddenElement.textContent = q.main_quote_actual_speaker_display;
-
-
+            
             if (q.next_message_text && nextMessageContainer) {
-                nextSpeakerNameElement.textContent = q.next_speaker_display || "不明";
+                nextSpeakerNameElement.textContent = q.next_speaker_display || "";
                 nextMessageTextElement.innerHTML = q.next_message_text.replace(/\n/g, '<br>');
                 nextMessageContainer.style.display = 'block';
             } else if (nextMessageContainer) {
                 nextMessageContainer.style.display = 'none';
+                nextSpeakerNameElement.textContent = "";
+                nextMessageTextElement.innerHTML = "";
             }
             
             if(attributedSpeakerNameElement) attributedSpeakerNameElement.textContent = q.attributed_speaker_display;
@@ -140,8 +155,6 @@ document.addEventListener('DOMContentLoaded', () => {
             noButton.addEventListener('click', () => handleAnswer("no"));
             choicesAreaElement.appendChild(noButton);
             
-            feedbackTextElement.textContent = '';
-            feedbackTextElement.className = 'feedback-text';
             nextQuestionBtn.style.display = 'none';
         } else {
             showResults();
@@ -159,7 +172,6 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.disabled = true;
         }
         
-        feedbackTextElement.classList.add('visible');
         let answeredCorrectly = false;
 
         if (userChoice === "yes") {
@@ -177,7 +189,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 feedbackTextElement.textContent = `残念！これは本当に ${attributedSpeaker} さんの発言でした。`;
             }
         }
-
+        
+        feedbackTextElement.className = 'feedback-text visible'; // Make visible first
         if (answeredCorrectly) {
             score++;
             if(currentScoreValueElement) currentScoreValueElement.textContent = score;
@@ -218,7 +231,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if(attributionQuestionArea) attributionQuestionArea.style.display = 'none';
         resultAreaElement.style.display = 'block'; 
         const resultCard = document.querySelector('.result-card');
-        if(resultCard) { resultCard.style.animation = 'none'; resultCard.offsetHeight; resultCard.style.animation = ''; }
+        if(resultCard) { 
+            resultCard.style.opacity = '0'; // Reset for animation
+            resultCard.style.transform = 'translateY(30px) scale(0.95)';
+            resultCard.style.animation = 'none'; 
+            resultCard.offsetHeight; 
+            resultCard.style.animation = ''; 
+        }
         
         const totalAnswered = currentQuizSet.length;
         totalQuestionsOnResultElement.textContent = totalAnswered;
