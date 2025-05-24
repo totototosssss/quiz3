@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const feedbackTextElement = document.getElementById('feedback-text');
     const nextQuestionBtn = document.getElementById('next-question-btn');
     const quizAreaElement = document.getElementById('quiz-area');
-    const resultAreaElement = document.getElementById('result-display-area');
+    const resultAreaElement = document.getElementById('result-area'); // ★★★ ID名をHTMLに合わせて修正 ★★★
     const restartBtn = document.getElementById('restart-btn');
     const progressBarElement = document.getElementById('progress-bar');
     const progressTextElement = document.getElementById('progress-text');
@@ -52,7 +52,15 @@ document.addEventListener('DOMContentLoaded', () => {
             startGame();
         } catch (error) {
             console.error("クイズデータの読み込みまたは初期化に失敗:", error);
-            displayError(`クイズの読み込みに失敗しました: ${error.message}. JSONファイル(${QUIZ_DATA_FILE})を確認してください。`);
+            // displayErrorが呼ばれる前にresultAreaElementがnullだとエラーになるので、
+            // displayError内でのresultAreaElement操作は、それがnullでないことを確認してから行う
+            if (quizAreaElement) { // quizAreaElementも同様に確認
+                 quizAreaElement.innerHTML = `<p class="error-message">クイズの読み込みに失敗しました: ${error.message}. JSONファイル(${QUIZ_DATA_FILE})を確認してください。</p>`;
+                 quizAreaElement.style.display = 'block';
+            }
+            if (resultAreaElement) resultAreaElement.style.display = 'none'; // エラー時に隠す
+            const header = document.querySelector('.quiz-header');
+            if(header) header.style.display = 'none';
         }
     }
 
@@ -65,9 +73,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function displayError(message) { 
-        quizAreaElement.innerHTML = `<p class="error-message">${message}</p>`;
-        quizAreaElement.style.display = 'block';
-        resultAreaElement.style.display = 'none';
+        if (quizAreaElement) {
+            quizAreaElement.innerHTML = `<p class="error-message">${message}</p>`;
+            quizAreaElement.style.display = 'block';
+        }
+        if (resultAreaElement) { // ★ nullチェックを追加
+            resultAreaElement.style.display = 'none';
+        }
         const header = document.querySelector('.quiz-header');
         if(header) header.style.display = 'none';
     }
@@ -78,17 +90,19 @@ document.addEventListener('DOMContentLoaded', () => {
         if(currentScoreValueElement) currentScoreValueElement.textContent = '0';
         if(currentScoreDisplayElement) currentScoreDisplayElement.classList.remove('score-updated');
         
-        resultAreaElement.style.display = 'none';
-        const resultCard = document.querySelector('.result-card');
-        if(resultCard) { 
-            resultCard.style.opacity = '0';
-            resultCard.style.transform = 'translateY(30px) scale(0.95)';
-            resultCard.style.animation = 'none'; 
-            resultCard.offsetHeight; 
-            resultCard.style.animation = ''; 
+        if (resultAreaElement) { // ★ nullチェックを追加
+            resultAreaElement.style.display = 'none';
+            const resultCard = document.querySelector('.result-card'); // resultCardもresultAreaElementの内側にあるはず
+            if(resultCard) { 
+                resultCard.style.opacity = '0';
+                resultCard.style.transform = 'translateY(30px) scale(0.95)';
+                resultCard.style.animation = 'none'; 
+                resultCard.offsetHeight; 
+                resultCard.style.animation = ''; 
+            }
         }
         
-        quizAreaElement.style.display = 'block';
+        if (quizAreaElement) quizAreaElement.style.display = 'block'; // ★ nullチェックを追加
         if(attributionQuestionArea) attributionQuestionArea.style.display = 'block'; 
         choicesAreaElement.className = 'choices-container binary-choices'; 
 
@@ -97,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
         feedbackTextElement.className = 'feedback-text'; 
         
         if (currentQuizSet.length === 0) {
-            displayError("出題できるクイズがありません。");
+            displayError("出題できるクイズがありません。"); // このdisplayError呼び出し時にはresultAreaElementが解決済みであるべき
             return;
         }
         updateProgress();
@@ -218,11 +232,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- 結果表示 (称号・メッセージ大幅更新) ---
     function showResults() {
-        quizAreaElement.style.display = 'none';
+        if (quizAreaElement) quizAreaElement.style.display = 'none'; // ★ nullチェック
         if(attributionQuestionArea) attributionQuestionArea.style.display = 'none';
-        resultAreaElement.style.display = 'block'; 
+        if (resultAreaElement) resultAreaElement.style.display = 'block';  // ★ nullチェック
+        
         const resultCard = document.querySelector('.result-card');
         if(resultCard) { 
             resultCard.style.opacity = '0'; 
@@ -237,33 +251,21 @@ document.addEventListener('DOMContentLoaded', () => {
         let rank = '', rankTitle = '', message = '', iconClass = ''; 
         const correctAnswers = score;
 
-        // ★★★ 新しいランクとメッセージ定義 ★★★
         switch (correctAnswers) {
             case 10:
                 rank = 'godlike'; rankTitle = "中毒お疲れ様です🤡";
                 message = "全問パーフェクト！…あなた、このトーク履歴がないと生きていけない体になってませんか？日常生活、ちゃんと送れてます？マジで心配です（棒読み）。";
                 iconClass = 'fas fa-skull-crossbones';
-                if (typeof confetti === 'function') {
+                if (typeof confetti === 'function') { 
                     const end = Date.now() + (3.5 * 1000); 
                     const colors = ['#1f2937', '#5e5af9', '#f59e0b', '#ef4444', '#f3e5f5', '#7b1fa2'];
-
                     (function frame() {
-                        confetti({
-                            particleCount: 7, angle: 60, spread: 75, origin: { x: 0, y: 0.6 },
-                            colors: colors, scalar: Math.random() * 0.7 + 0.8, drift: Math.random() * 0.7 - 0.35, zIndex:10000
-                        });
-                        confetti({
-                            particleCount: 7, angle: 120, spread: 75, origin: { x: 1, y: 0.6 },
-                            colors: colors, scalar: Math.random() * 0.7 + 0.8, drift: Math.random() * -0.7 + 0.35, zIndex:10000
-                        });
+                        confetti({ particleCount: 7, angle: 60, spread: 75, origin: { x: 0, y: 0.6 }, colors: colors, scalar: Math.random() * 0.7 + 0.8, drift: Math.random() * 0.7 - 0.35, zIndex:10000 });
+                        confetti({ particleCount: 7, angle: 120, spread: 75, origin: { x: 1, y: 0.6 }, colors: colors, scalar: Math.random() * 0.7 + 0.8, drift: Math.random() * -0.7 + 0.35, zIndex:10000 });
                         if (Date.now() < end) { requestAnimationFrame(frame); }
                     }());
-                    setTimeout(() => { 
-                        confetti({ particleCount: 200, spread: 150, origin: { y: 0.55 }, colors: colors, scalar: 1.4, zIndex: 10001, ticks: 350 });
-                    }, 300);
-                     setTimeout(() => { 
-                        confetti({ particleCount: 100, spread: 180, origin: { y: 0.45 }, colors: ['#FFFFFF', '#fef08a'], scalar: 0.9, shapes: ['star'], zIndex: 10002, ticks: 250 });
-                    }, 600);
+                    setTimeout(() => { confetti({ particleCount: 200, spread: 150, origin: { y: 0.55 }, colors: colors, scalar: 1.4, zIndex: 10001, ticks: 350 }); }, 300);
+                    setTimeout(() => { confetti({ particleCount: 100, spread: 180, origin: { y: 0.45 }, colors: ['#FFFFFF', '#fef08a'], scalar: 0.9, shapes: ['star'], zIndex: 10002, ticks: 250 }); }, 600);
                 }
                 break;
             case 9:
@@ -299,7 +301,7 @@ document.addEventListener('DOMContentLoaded', () => {
             case 3:
                 rank = 'c_plus'; rankTitle = "天然記念物級の誤解";
                 message = "その解釈は新しすぎるッ！もはや芸術の域では…？いや、ただの勘違いか。次、頑張りましょう！";
-                iconClass = 'fas fa-monument'; // モニュメントや疑問符など
+                iconClass = 'fas fa-monument';
                 break;
             case 2:
                 rank = 'c'; rankTitle = "異文化コミュニケーター(自称)";
@@ -313,12 +315,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 break;
             case 0:
             default:
-                rank = 'd'; rankTitle = "伝説のノーコンタクト";
+                rank = 'd'; rankTitle = "伝説のノーコンタクト記録保持者";
                 message = "全問不正解！おめでとうございます（？）。あなたは誰とも会話が噛み合わないという稀有な才能の持ち主かもしれません！いや、本当にすごい（色んな意味で）。";
                 iconClass = 'fas fa-ghost';
                 break;
         }
-        // ★★★ここまで★★★
         
         resultIconContainer.className = `result-icon-container rank-${rank}`; 
         resultIconContainer.innerHTML = `<i class="${iconClass}"></i>`;
