@@ -218,6 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // --- 結果表示 (称号・メッセージ大幅更新) ---
     function showResults() {
         quizAreaElement.style.display = 'none';
         if(attributionQuestionArea) attributionQuestionArea.style.display = 'none';
@@ -236,9 +237,9 @@ document.addEventListener('DOMContentLoaded', () => {
         let rank = '', rankTitle = '', message = '', iconClass = ''; 
         const correctAnswers = score;
 
-        // ★★★ 新しいランクとメッセージ定義 (ご要望に合わせて大幅変更) ★★★
+        // ★★★ 新しいランクとメッセージ定義 ★★★
         switch (correctAnswers) {
-            case 10: // 100%
+            case 10:
                 rank = 'godlike'; rankTitle = "中毒お疲れ様です🤡";
                 message = "全問パーフェクト！…あなた、このトーク履歴がないと生きていけない体になってませんか？日常生活、ちゃんと送れてます？マジで心配です（棒読み）。";
                 iconClass = 'fas fa-skull-crossbones';
@@ -258,63 +259,63 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (Date.now() < end) { requestAnimationFrame(frame); }
                     }());
                     setTimeout(() => { 
-                        confetti({ particleCount: 200, spread: 150, origin: { y: 0.5 }, colors: colors, scalar: 1.4, zIndex: 10001, ticks: 350 });
+                        confetti({ particleCount: 200, spread: 150, origin: { y: 0.55 }, colors: colors, scalar: 1.4, zIndex: 10001, ticks: 350 });
                     }, 300);
                      setTimeout(() => { 
-                        confetti({ particleCount: 100, spread: 180, origin: { y: 0.4 }, colors: ['#FFFFFF'], scalar: 0.8, shapes: ['star'], zIndex: 10002, ticks: 250 });
+                        confetti({ particleCount: 100, spread: 180, origin: { y: 0.45 }, colors: ['#FFFFFF', '#fef08a'], scalar: 0.9, shapes: ['star'], zIndex: 10002, ticks: 250 });
                     }, 600);
                 }
                 break;
-            case 9: 
-                rank = 'ss'; rankTitle = "ほぼ中毒者 (あと一息)";
-                message = "おしい！あと１問でトーク履歴と魂が融合するところでしたね。その集中力、別の建設的な何かに使ってみては…？";
-                iconClass = 'fas fa-brain';
+            case 9:
+                rank = 'ss'; rankTitle = "神眼の主";
+                message = "おしい！あと一問で中毒者の仲間入り…いや、神の領域でした！その慧眼、常人には理解不能ッ！";
+                iconClass = 'fas fa-eye'; 
                 break;
-            case 8: 
-                rank = 's'; rankTitle = "トーク履歴の住人";
-                message = "かなり正確じゃないですか。もしかして、この会話、昨日も夢のシミュレーションで反芻してました？";
-                iconClass = 'fas fa-door-open';
+            case 8:
+                rank = 's'; rankTitle = "トーク賢者";
+                message = "驚異的な正解率！あなたは会話の深層心理まで見抜いている…！畏敬の念を禁じ得ません！";
+                iconClass = 'fas fa-hat-wizard';
                 break;
-            case 7: 
-                rank = 'a_plus'; rankTitle = "なかなかの記憶力（要観察対象）";
-                message = "7割正解とは、なかなかやりますね。…ところで、最近ちゃんと睡眠とってます？記憶の定着、良すぎませんか？";
-                iconClass = 'fas fa-hourglass-half';
+            case 7:
+                rank = 'a_plus'; rankTitle = "超読心術師";
+                message = "鋭い！相手の思考が手に取るようにわかるレベルですね！もはや尊敬の対象です。";
+                iconClass = 'fas fa-award';
                 break;
-            case 6: 
-                rank = 'a'; rankTitle = "そこそこ当たる勘（霊感？）";
-                message = "半分以上はクリア！第六感ですか？それとも…守護霊様が囁いてるとか…？オカルト！";
-                iconClass = 'fas fa-wand-magic-sparkles';
+            case 6:
+                rank = 'a'; rankTitle = "名探偵の片鱗";
+                message = "なかなかの推理力！重要な手がかりを見逃しませんね。次こそ全貌解明だ！";
+                iconClass = 'fas fa-magnifying-glass-plus';
                 break;
-            case 5: 
-                rank = 'b_plus'; rankTitle = "五分五分の博徒";
-                message = "ちょうど半分！コイントスでも同じくらいの確率が出そうですね！次はそのコイン、誰にも見せずに握りしめてみませんか？未来が見えるかも。";
-                iconClass = 'fas fa-coins';
+            case 5:
+                rank = 'b_plus'; rankTitle = "聞き耳上手";
+                message = "ちょうど半分！会話にはしっかり参加できていますね。…もしかして、盗み聞きも得意だったり？ニヤリ。";
+                iconClass = 'fas fa-ear-listen';
                 break;
-            case 4: 
-                rank = 'b'; rankTitle = "あれ？時空歪んでる？";
-                message = "うーん、デジャヴュかと思いきや、だいたい外れてますね。大丈夫、きっとパラレルワールドのあなたは大正解してますよ！";
-                iconClass = 'fas fa-ghost'; // 幽霊・幻影
+            case 4:
+                rank = 'b'; rankTitle = "時々、宇宙と交信";
+                message = "うーん、惜しいような、そうでもないような…？大丈夫、たまにはトンチンカンな返事もご愛嬌です！…たぶんね。";
+                iconClass = 'fas fa-satellite-dish';
                 break;
-            case 3: 
-                rank = 'c_plus'; rankTitle = "もしかして：AI側の人？";
-                message = "その解釈は斬新すぎます！もしかして、あなたがAIで、人間を試してます？…なーんて。もう少しだけ、読解力を鍛えましょう！";
-                iconClass = 'fas fa-robot';
+            case 3:
+                rank = 'c_plus'; rankTitle = "天然記念物級の誤解";
+                message = "その解釈は新しすぎるッ！もはや芸術の域では…？いや、ただの勘違いか。次、頑張りましょう！";
+                iconClass = 'fas fa-monument'; // モニュメントや疑問符など
                 break;
-            case 2: 
-                rank = 'c'; rankTitle = "異文化交流希望者";
-                message = "…えっと、どこの星の言語で会話されてましたっけ？このトークルームでは、もう少し…ね？でも、グローバルな視点、大事！";
+            case 2:
+                rank = 'c'; rankTitle = "異文化コミュニケーター(自称)";
+                message = "…えっと、どこの星の会話ルールでしたっけ？このトークルームでは、もうちょっと…ね？でも、グローバルな視点、大事！";
                 iconClass = 'fas fa-user-astronaut';
                 break;
-            case 1: 
-                rank = 'd_plus'; rankTitle = "一点突破のミラクル（まぐれ）";
-                message = "逆にすごい！一点集中型の才能が開花した瞬間かもしれません！…他はご愛嬌ということで！もう一回やればきっと…！";
+            case 1:
+                rank = 'd_plus'; rankTitle = "ある意味ミラクル";
+                message = "逆にすごい！ここまでくると、もはや何かの才能を感じずにはいられません！…何の才能かは不明ですが。";
                 iconClass = 'fas fa-dice-one';
                 break;
-            case 0: 
-            default: 
-                rank = 'd'; rankTitle = "伝説のノーコンタクト記録保持者";
-                message = "全問不正解！おめでとうございます！あなたは『誰とも心が通わない』という稀有な才能の持ち主かもしれません！…いや、本当にすごい（褒めてない）。";
-                iconClass = 'fas fa-unlink'; // リンク切れ・接続切れ
+            case 0:
+            default:
+                rank = 'd'; rankTitle = "伝説のノーコンタクト";
+                message = "全問不正解！おめでとうございます（？）。あなたは誰とも会話が噛み合わないという稀有な才能の持ち主かもしれません！いや、本当にすごい（色んな意味で）。";
+                iconClass = 'fas fa-ghost';
                 break;
         }
         // ★★★ここまで★★★
