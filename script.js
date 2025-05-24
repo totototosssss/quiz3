@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const feedbackTextElement = document.getElementById('feedback-text');
     const nextQuestionBtn = document.getElementById('next-question-btn');
     const quizAreaElement = document.getElementById('quiz-area');
-    const resultAreaElement = document.getElementById('result-display-area'); // ID変更を反映 (HTMLに合わせて)
+    const resultAreaElement = document.getElementById('result-display-area');
     const restartBtn = document.getElementById('restart-btn');
     const progressBarElement = document.getElementById('progress-bar');
     const progressTextElement = document.getElementById('progress-text');
@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function displayQuestion() {
-        feedbackTextElement.className = 'feedback-text'; // Reset feedback visibility
+        feedbackTextElement.className = 'feedback-text';
         if (currentQuestionIndex < currentQuizSet.length) {
             const q = currentQuizSet[currentQuestionIndex];
             
@@ -136,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             choicesAreaElement.innerHTML = ''; 
             const yesButton = document.createElement('button');
-            yesButton.innerHTML = `<span>はい、この人の発言！</span>`; // Span for text on top of pseudo-element
+            yesButton.innerHTML = `<span>はい、この人の発言！</span>`;
             yesButton.dataset.answer = "yes";
             yesButton.addEventListener('click', () => handleAnswer("yes"));
             choicesAreaElement.appendChild(yesButton);
@@ -171,18 +171,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 answeredCorrectly = true;
                 feedbackTextElement.textContent = `正解！これは本当に ${attributedSpeaker} さんの発言でした！🎉`;
             } else {
-                feedbackTextElement.textContent = `残念！これは ${attributedSpeaker} さんの発言ではありません。実は ${actualSpeaker} さんのものでした。`;
+                feedbackTextElement.textContent = `残念…！これは ${attributedSpeaker} さんの発言ではありませんでした。本当は ${actualSpeaker} さんのセリフです。`;
             }
         } else if (userChoice === "no") {
             if (!isCorrectAttribution) {
                 answeredCorrectly = true;
-                feedbackTextElement.textContent = `お見事！これは ${attributedSpeaker} さんの発言ではありませんでした。（本当は ${actualSpeaker} さんです）👍`;
+                feedbackTextElement.textContent = `お見事！その通り、 ${attributedSpeaker} さんの発言ではありませんでした！（正解は ${actualSpeaker} さんです）👍`;
             } else {
-                feedbackTextElement.textContent = `残念！これは本当に ${attributedSpeaker} さんの発言でした。`;
+                feedbackTextElement.textContent = `ありゃ、これは本当に ${attributedSpeaker} さんの発言だったんですよ。`;
             }
         }
         
-        feedbackTextElement.className = 'feedback-text visible'; // Make visible first
+        feedbackTextElement.className = 'feedback-text visible'; 
         if (answeredCorrectly) {
             score++;
             if(currentScoreValueElement) currentScoreValueElement.textContent = score;
@@ -193,7 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
             feedbackTextElement.classList.add('correct');
             Array.from(buttons).find(btn => btn.dataset.answer === userChoice)?.classList.add('correct');
             if (typeof confetti === 'function') {
-                confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 }, zIndex: 10000, scalar: 1.15 });
+                confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 }, zIndex: 10000, scalar: 1.15, angle: randomRange(75,105) });
             }
         } else {
             feedbackTextElement.classList.add('wrong');
@@ -235,70 +235,73 @@ document.addEventListener('DOMContentLoaded', () => {
         const totalAnswered = currentQuizSet.length;
         totalQuestionsOnResultElement.textContent = totalAnswered;
         let rank = '', rankTitle = '', message = '', iconClass = ''; 
-        const percentage = totalAnswered > 0 ? Math.round((score / totalAnswered) * 100) : 0;
         const correctAnswers = score;
 
         switch (correctAnswers) {
             case 10: // 100%
-                rank = 'godlike'; rankTitle = "中毒お疲れ🤡";
-                message = "全問正解…あなたの人生、このトーク履歴に捧げましたね？もはや生き字引。恐れ入りました！";
-                iconClass = 'fas fa-skull-crossbones'; // より煽り感を出すアイコン
+                rank = 'godlike'; rankTitle = "中毒お疲れ様です🤡";
+                message = "全問正解…参りました。あなたはこのトーク履歴の『神』ですね。履歴書に書けますよ、たぶん。";
+                iconClass = 'fas fa-crown'; 
                  if (typeof confetti === 'function') { 
                     setTimeout(() => { 
-                         confetti({ particleCount: 300, spread: 200, origin: { y: 0.2 }, angle: 270, drift: 0.2, gravity: 0.6, zIndex: 10000, scalar: 1.4, ticks: 400, colors: ['#FF0000', '#000000', '#800080'] }); // 毒々しい色
-                         confetti({ particleCount: 250, spread: 180, origin: { y: 0.3 }, zIndex: 10000, ticks: 400, colors: ['#FFD700', '#DC143C'] });
-                    }, 700);
+                         const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 10000 };
+                         function shoot() {
+                            confetti({ ...defaults, particleCount: 80, scalar: 1.2, shapes: ['star'] });
+                            confetti({ ...defaults, particleCount: 30, scalar: 0.75, shapes: ['circle'] });
+                         }
+                         setTimeout(shoot, 0); setTimeout(shoot, 100); setTimeout(shoot, 200); setTimeout(shoot, 300); setTimeout(shoot, 400);
+                    }, 600);
                 }
                 break;
             case 9: // 90%
-                rank = 'ss'; rankTitle = "神眼の主";
-                message = "驚異の9割正解！ほぼ全てお見通しとは…その慧眼、常人には理解不能ッ！";
+                rank = 'ss'; rankTitle = "神眼の所有者";
+                message = "あと一歩で『神』…！その慧眼、常人には理解不能な領域です。恐れ入ります！";
                 iconClass = 'fas fa-eye'; 
                 break;
             case 8: // 80%
                 rank = 's'; rankTitle = "トーク賢者";
-                message = "素晴らしい正解率！あなたは会話の深層心理まで見抜いている…！畏敬の念を禁じ得ません！";
+                message = "驚異的！会話の深層心理までお見通しとは…！畏敬の念しかありません！";
                 iconClass = 'fas fa-hat-wizard';
                 break;
             case 7: // 70%
                 rank = 'a_plus'; rankTitle = "超読心術師";
-                message = "鋭い！相手の思考が手に取るようにわかるレベルですね！もはや尊敬の対象です。";
+                message = "達人レベル！相手の思考が手に取るように分かるのですね！素晴らしい！";
                 iconClass = 'fas fa-award';
                 break;
             case 6: // 60%
-                rank = 'a'; rankTitle = "名探偵の片鱗";
-                message = "なかなかの推理力！重要な手がかりを見逃しませんね。次こそ全貌解明だ！";
+                rank = 'a'; rankTitle = "名探偵の風格";
+                message = "なかなかの推理力！重要な手がかりを見逃しませんね。次こそパーフェクト！";
                 iconClass = 'fas fa-magnifying-glass-plus';
                 break;
             case 5: // 50%
-                rank = 'b_plus'; rankTitle = "聞き耳上手";
-                message = "半分正解！会話にはしっかり参加できていますね。…もしかして、聞き耳も得意だったり？ニヤリ。";
+                rank = 'b_plus'; rankTitle = "聞き耳上手な隣人";
+                message = "ちょうど半分！会話の流れは掴めていますね！…もしかして、普段から聞き耳を…？なんて。";
                 iconClass = 'fas fa-ear-listen';
                 break;
             case 4: // 40%
-                rank = 'b'; rankTitle = "時々、宇宙と交信";
-                message = "うーん、惜しいような、そうでもないような…？大丈夫、たまにはトンチンカンな返事もご愛嬌です！…たぶんね。";
+                rank = 'b'; rankTitle = "時々、宇宙と交信中？";
+                message = "惜しいような、そうでもないような…？大丈夫、たまには不思議な回答もスパイスです！…ということにしておきましょう。";
                 iconClass = 'fas fa-satellite-dish';
                 break;
             case 3: // 30%
-                rank = 'c_plus'; rankTitle = "天然記念物級の誤解";
-                message = "その解釈は新しすぎるッ！もはや芸術の域では…？いや、ただの勘違いか。次、頑張りましょう！";
-                iconClass = 'fas fa-question';
+                rank = 'c_plus'; rankTitle = "迷える脚本家";
+                message = "その解釈は斬新すぎます！もはや創作の域では…？もう少しだけ、現実と向き合ってみませんか？";
+                iconClass = 'fas fa-theater-masks'; // or fas fa-scroll
                 break;
             case 2: // 20%
-                rank = 'c'; rankTitle = "異文化交流大使(仮)";
-                message = "…えっと、どこの星の会話ルールでしたっけ？地球ではもうちょっと…ね？ファイトです！";
+                rank = 'c'; rankTitle = "異文化コミュニケーター(自称)";
+                message = "…えっと、どこの星の会話ルールでしたっけ？このトークルームでは、もうちょっと…ね？でも、その個性は大事に！";
                 iconClass = 'fas fa-user-astronaut';
                 break;
             case 1: // 10%
-                rank = 'd_plus'; rankTitle = "ある意味ミラクル";
-                message = "逆にすごい！ここまでくると、もはや何かの才能を感じずにはいられません！…何の才能かは不明ですが。";
-                iconClass = 'fas fa-puzzle-piece';
+                rank = 'd_plus'; rankTitle = "一点突破の奇跡";
+                message = "逆にすごい！一点集中型の才能が開花した瞬間かもしれません！…他はご愛嬌ということで！";
+                iconClass = 'fas fa-bullseye'; // or fas fa-dice-one
                 break;
             case 0: // 0%
-            default: // フォールバック
-                rank = 'd'; rankTitle = "完全試合（逆）達成！";
-                message = "おめでとうございます！あなたは誰とも会話が噛み合わないという稀有な才能の持ち主です！…え？そういうゲームじゃない？";
+            default: 
+                rank = 'd'; rankTitle = "伝説のノーコンタクト";
+                message = "全問不正解！おめでとうございます（？）。あなたは誰とも交わらない孤高の存在…！ある意味、選ばれし者。";
                 iconClass = 'fas fa-ghost';
                 break;
         }
@@ -308,7 +311,7 @@ document.addEventListener('DOMContentLoaded', () => {
         resultRankTitleElement.textContent = rankTitle;
         resultRankTitleElement.className = `result-rank-title rank-${rank}`; 
         resultMessageElement.textContent = message;
-        animateValue(finalScoreValueElement, 0, score, 700 + score * 60); // スコアアニメーション時間調整
+        animateValue(finalScoreValueElement, 0, score, 700 + score * 60);
         progressBarElement.style.width = '100%';
         progressTextElement.textContent = `全 ${totalAnswered} 問完了！`;
     }
