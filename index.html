@@ -3,21 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VectorFlow Quiz 🧠 文脈推理</title>
+    <title>QuantumFlow Quiz 🌌 文脈xベット</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800&family=Poppins:wght@400;500;600;700;800&family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="page-background-vflow"></div> 
+    <div class="page-background-qflow"></div> 
     <div class="app-wrapper">
         <div class="app-container">
             <header class="quiz-header">
                 <h1 class="game-title">
                     文脈推理
-                    <span class="game-title-edition">VectorFlow</span>
+                    <span class="game-title-edition">QuantumFlow</span>
                 </h1>
                 <div class="header-info-bar">
                     <div class="progress-info">
@@ -27,12 +27,15 @@
                         </div>
                     </div>
                     <div class="current-score-display">
-                        <i class="fas fa-brain score-icon"></i>スコア: <span id="current-score-value">0</span>
+                        <i class="fas fa-atom score-icon"></i>スコア: <span id="current-score-value">0</span>
                     </div>
                 </div>
             </header>
 
             <main id="quiz-area" class="quiz-content">
+                <div id="stakes-notification-area" class="stakes-notification" style="display:none;">
+                    <p id="stakes-text"></p>
+                </div>
                 <div class="message-display-area with-context">
                     <div class="context-message-wrapper previous-context" id="prev-message-container" style="display:none;">
                         <span class="context-speaker" id="prev-speaker-name"></span>
@@ -66,23 +69,22 @@
 
             <section id="result-area" class="result-display-area" style="display:none;">
                 <div class="result-card">
-                    <h2 class="result-card-title">最終分析レポート</h2>
+                    <h2 class="result-card-title">最終ジャッジメント</h2>
                     <div id="result-icon-container" class="result-icon-container"></div>
                     <p id="result-rank-title" class="result-rank-title"></p>
                     <div class="final-score-display">
-                        <span class="final-score-label">ACCURACY</span>
+                        <span class="final-score-label">TOTAL POINTS</span>
                         <span id="final-score-value" class="final-score-value">0</span>
-                        <span class="total-questions-label">/ <span id="total-questions-on-result">10</span></span>
                     </div>
                     <p id="result-message" class="result-message"></p>
                     <button id="restart-btn" class="action-button restart-button">
-                        <i class="fas fa-sync-alt icon-before"></i> 再チャレンジ
+                        <i class="fas fa-sync-alt icon-before"></i> 再挑戦
                     </button>
                 </div>
             </section>
 
             <footer class="app-footer">
-                <p>&copy; <span id="current-year"></span> VectorFlow Quiz Engine. </p>
+                <p>&copy; <span id="current-year"></span> QuantumFlow Quiz. </p>
             </footer>
         </div>
     </div>
